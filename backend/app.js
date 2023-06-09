@@ -1,8 +1,8 @@
 const express = require('express');
-
 const app = express();
-
 const mongoose = require('mongoose');
+const Book = require('./models/Book')
+
 
 mongoose.connect('mongodb+srv://gabrielamade:lKETUUuYA8ZkEB37@cluster0.ekwh9m4.mongodb.net/?retryWrites=true&w=majority',
   { useNewUrlParser: true,
@@ -20,33 +20,42 @@ app.use((req, res, next) => {
   });
 
   app.post('/api/books', (req, res, next) => {
-    console.log(req.body);
-    res.status(201).json({
-      message: 'Objet créé !'
+    delete req.body._id;
+    const book = new Book({
+      ...req.body
     });
+    book.save()
+      .then(() => res.status(201).json({ message: 'Livre enregistré !'}))
+      .catch(error => res.status(400).json({ error }));
   });
 
-app.get('/api/books', (req, res, next) => {
-    const stuff = [
-      {
-        _id: 'oeihfzeoi',
-        title: 'Mon premier objet',
-        description: 'Les infos de mon premier objet',
-        imageUrl: 'https://cdn.pixabay.com/photo/2019/06/11/18/56/camera-4267692_1280.jpg',
-        price: 4900,
-        userId: 'qsomihvqios',
-      },
-      {
-        _id: 'oeihfzeomoihi',
-        title: 'Mon deuxième objet',
-        description: 'Les infos de mon deuxième objet',
-        imageUrl: 'https://cdn.pixabay.com/photo/2019/06/11/18/56/camera-4267692_1280.jpg',
-        price: 2900,
-        userId: 'qsomihvqios',
-      },
-    ];
-    res.status(200).json(stuff);
+  app.use('/api/books', (req, res, next) => {
+    Book.find()
+      .then(books => res.status(200).json(books))
+      .catch(error => res.status(400).json({ error }));
   });
+
+// app.get('/api/books', (req, res, next) => {
+//     const stuff = [
+//       {
+//         _id: 'oeihfzeoi',
+//         title: 'Mon premier objet',
+//         description: 'Les infos de mon premier objet',
+//         imageUrl: 'https://cdn.pixabay.com/photo/2019/06/11/18/56/camera-4267692_1280.jpg',
+//         price: 4900,
+//         userId: 'qsomihvqios',
+//       },
+//       {
+//         _id: 'oeihfzeomoihi',
+//         title: 'Mon deuxième objet',
+//         description: 'Les infos de mon deuxième objet',
+//         imageUrl: 'https://cdn.pixabay.com/photo/2019/06/11/18/56/camera-4267692_1280.jpg',
+//         price: 2900,
+//         userId: 'qsomihvqios',
+//       },
+//     ];
+//     res.status(200).json(stuff);
+//   });
 
 module.exports = app;
 
