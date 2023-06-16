@@ -1,21 +1,24 @@
 const Book = require('../models/Book');
 const fs = require('fs');
 
-
 exports.createBook = (req, res, next) => {
-    const bookObject = JSON.parse(req.body.book);
-    delete bookObject._id;
-    delete bookObject._userId;
-    const book = new Book({
-        ...bookObject,
-        userId: req.auth.userId,
-        imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+  const bookObject = JSON.parse(req.body.book);
+  delete bookObject._id;
+  delete bookObject._userId;
+  const book = new Book({
+    ...bookObject,
+    userId: req.auth.userId,
+    imageUrl: req.sharp.imageUrl  
+  });
+
+  book.save()
+    .then(() => {
+      res.status(201).json({ message: 'Livre enregistré !' });
+    })
+    .catch(error => {
+      res.status(400).json({ error });
     });
-  
-    book.save()
-    .then(() => { res.status(201).json({message: 'Livre enregistré !'})})
-    .catch(error => { res.status(400).json( { error })})
- };
+};
 
 exports.modifyBook = (req, res, next) => {
 const bookObject = req.file ? {
