@@ -20,27 +20,45 @@ exports.createBook = (req, res, next) => {
     });
 };
 
-exports.modifyBook = (req, res, next) => {
-const bookObject = req.file ? {
-    ...JSON.parse(req.body.book),
-    imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
-} : { ...req.body };
+exports.modifyBook = async (req, res, next) => {
+    try {
+      const bookId = req.params.id;
+      let bookObject;
+        if (req.file) {
+            bookObject = {
+                ...JSON.parse(req.body.book),
+                imageUrl: req.sharp.imageUrl,
+            };
+            } else {
+            bookObject = { ...req.body };
+            }
+      delete bookObject._userId;
+  
+      const book = await Book.findOne({ _id: bookId });
+  
+      if (!book) {
+        return res.status(404).json({ error: "Livre non trouvé" });
+      }
+  
+      if (book.userId !== req.auth.userId) {
+        return res.status(401).json({ message: "Non-autorisé" });
+      }
+  
+      if (req.file) {
+        const filename = book.imageUrl.split("/images/resized/")[1];
+        fs.unlink(`images/resized/${filename}`, (err) => {
+          if (err) throw err;
+        });
+      }
+  
+      await Book.updateOne({ _id: bookId }, { ...bookObject, _id: bookId });
+  
+      res.status(200).json({ message: "Livre modifié !" });
+    } catch (error) {
+      res.status(500).json({ error });
+    }
+  };
 
-delete bookObject._userId;
-Book.findOne({_id: req.params.id})
-    .then((book) => {
-        if (book.userId != req.auth.userId) {
-            res.status(401).json({ message : 'Not authorized'});
-        } else {
-            Book.updateOne({ _id: req.params.id}, { ...bookObject, _id: req.params.id})
-            .then(() => res.status(200).json({message : 'Livre modifié!'}))
-            .catch(error => res.status(401).json({ error }));
-        }
-    })
-    .catch((error) => {
-        res.status(400).json({ error });
-    });
-};
 
 exports.deleteBook = (req, res, next) => {
     Book.findOne({ _id: req.params.id})

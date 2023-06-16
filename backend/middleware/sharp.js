@@ -10,21 +10,35 @@ module.exports = async (req, res, next) => {
   } catch (error) {
     console.log(error);
   }
+
   if (req.file) {
-    const originalFilename = req.file.originalname;
-    const filenameWithoutExtension = originalFilename.split(".")[0];
+    const { originalname, filename, path } = req.file;
+    const filenameWithoutExtension = originalname.split(".")[0];
     const newFilename = `${filenameWithoutExtension}.webp`;
-    await sharp(req.file.path)
-      .resize(405, 570)
-      .toFormat("webp")
-      .webp({ quality: 80 })
-      .toFile(`./images/resized/${newFilename}`);
-    req.sharp = {
-      imageUrl: `${req.protocol}://${req.get("host")}/images/resized/${newFilename}`,
-    };
-    fs.unlink(`./images/${req.file.filename}`, (err) => {
-      if (err) throw err;
-    });
+    const resizedImagePath = `${folderName}/${newFilename}`;
+
+    try {
+      await sharp(path)
+        .resize(405, 570)
+        .toFormat("webp")
+        .webp({ quality: 80 })
+        .toFile(resizedImagePath);
+
+      req.sharp = {
+        imageUrl: `${req.protocol}://${req.get("host")}/images/resized/${newFilename}`,
+      };
+
+      fs.unlink(path, (err) => {
+        if (err) throw err;
+      });
+    } catch (error) {
+      console.log(error);
+    }
   }
+
   next();
 };
+
+
+
+
