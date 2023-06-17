@@ -14,4 +14,7 @@ router.delete('/:id', auth, bookCtrl.deleteBook);
 router.get('/:id', bookCtrl.getOneBook);
 router.get('/', bookCtrl.getAllBooks);
 
+router.post('/:id/rating', auth, bookCtrl.addRating);
+
+
 module.exports = router;
