@@ -19,7 +19,7 @@ module.exports = async (req, res, next) => {
 
     try {
       await sharp(path)
-        .resize(405, 570)
+        .resize(500, 700)
         .toFormat("webp")
         .webp({ quality: 80 })
         .toFile(resizedImagePath);
