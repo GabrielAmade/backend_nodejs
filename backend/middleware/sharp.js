@@ -14,7 +14,8 @@ module.exports = async (req, res, next) => {
   if (req.file) {
     const { originalname, filename, path } = req.file;
     const filenameWithoutExtension = originalname.split(".")[0];
-    const newFilename = `${filenameWithoutExtension}.webp`;
+    const uniquePrefix = Date.now();
+    const newFilename = `${filenameWithoutExtension}_${uniquePrefix}.webp`;
     const resizedImagePath = `${folderName}/${newFilename}`;
 
     try {
@@ -38,7 +39,3 @@ module.exports = async (req, res, next) => {
 
   next();
 };
-
-
-
-
