@@ -7,7 +7,6 @@ const path = require('path');
 require("dotenv").config();
 
 
-
 mongoose.connect(process.env.MONGODB_URL,
   { useNewUrlParser: true,
     useUnifiedTopology: true })
@@ -32,6 +31,3 @@ module.exports = app;
 
 
 
-//Identifiants
-// gabrielamade
-// lKETUUuYA8ZkEB37
