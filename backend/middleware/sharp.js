@@ -30,8 +30,6 @@ module.exports = async (req, res, next) => {
         .toFile(resizedImagePath);
 
       req.sharp = {
-        // imageUrl: `${req.protocol}://${req.get("host")}/images/resized/${newFilename}`,
-        // imageUrl: `${req.protocol}://${req.get("host")}/${resizedImagePath}`,
         imageUrl: `${serverUrl}/${resizedImagePath}`,
 
       };
