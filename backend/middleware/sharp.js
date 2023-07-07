@@ -1,8 +1,12 @@
 const fs = require("fs");
 const sharp = require("sharp");
+require("dotenv").config();
+
 
 module.exports = async (req, res, next) => {
-  const folderName = "./images/resized";
+  const folderName = process.env.IMAGE_DIRECTORY;
+  const serverUrl = process.env.IMAGE_SERVER_URL;
+
   try {
     if (!fs.existsSync(folderName)) {
       fs.mkdirSync(folderName);
@@ -26,7 +30,10 @@ module.exports = async (req, res, next) => {
         .toFile(resizedImagePath);
 
       req.sharp = {
-        imageUrl: `${req.protocol}://${req.get("host")}/images/resized/${newFilename}`,
+        // imageUrl: `${req.protocol}://${req.get("host")}/images/resized/${newFilename}`,
+        // imageUrl: `${req.protocol}://${req.get("host")}/${resizedImagePath}`,
+        imageUrl: `${serverUrl}/${resizedImagePath}`,
+
       };
 
       fs.unlink(path, (err) => {

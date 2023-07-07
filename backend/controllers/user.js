@@ -3,10 +3,22 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
 exports.signup = (req, res, next) => {
+    const email = req.body.email;
+  
+    const atIndex = email.indexOf('@');
+    if (atIndex === -1 || atIndex === 0 || atIndex === email.length - 1) {
+      return res.status(400).json({ error: 'Email invalide' });
+    }
+  
+    const domain = email.substring(atIndex + 1);
+    if (!domain.endsWith('.com') && !domain.endsWith('.fr')) {
+      return res.status(400).json({ error: 'Email invalide' });
+    }
+  
     bcrypt.hash(req.body.password, 10)
       .then(hash => {
         const user = new User({
-          email: req.body.email,
+          email: email,
           password: hash
         });
         user.save()
@@ -15,6 +27,7 @@ exports.signup = (req, res, next) => {
       })
       .catch(error => res.status(500).json({ error }));
   };
+
 
   exports.login = (req, res, next) => {
     User.findOne({ email: req.body.email })
